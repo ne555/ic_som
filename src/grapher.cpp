@@ -48,6 +48,8 @@ void draw_puntos();
 void draw_conections();
 void wait_for_input();
 
+void fixed_background();
+
 void init();
 
 int main(int argc, char **argv){
@@ -58,7 +60,7 @@ int main(int argc, char **argv){
 }
 
 void init(){
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ACCUM);
 	glutInitWindowSize(width,height); glutInitWindowPosition(50,50);
 	glutCreateWindow("Graficador de puntos de colores");
 	glutDisplayFunc(display);
@@ -71,12 +73,13 @@ void init(){
 	glScaled(factor,factor,factor);
 	
 	glLineWidth(2);
-	glPointSize(5);
+	glPointSize(3);
 	glColor3fv(black);
 }
 
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT);
+	glAccum(GL_RETURN, 1);
 
 	draw_puntos();
 	draw_conections();
@@ -85,6 +88,14 @@ void display(){
 }
 
 void wait_for_input(){
+	static bool first_time = true;
+	if(first_time){
+		fixed_background();
+		first_time = false;
+		glutPostRedisplay();
+		return;
+	}
+
 	size_t row,column;
 	cin>>row>>column;
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -143,3 +154,18 @@ void draw_conections(){
 	};glEnd();
 }
 
+void fixed_background(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3fv(red);
+	int n;
+	glBegin(GL_POINTS);{
+		for(cin>>n; n>0; --n){
+			point p;
+			cin >> p[0] >> p[1];
+			glVertex2fv(p.x);
+		}
+	;}glEnd();
+
+	glAccum(GL_LOAD, 1);
+	glColor3fv(black);
+}

@@ -15,7 +15,7 @@ SOM::SOM (int m, int n, int entradas, int salidas) {
     mapa.resize(m, vector<neurona_som>(n));
 }
 
-void SOM::read (const char *filename) {
+void SOM::read (const char *filename, FILE *out) {
 	int n;
 
     fstream file (filename, fstream::in);    
@@ -33,6 +33,13 @@ void SOM::read (const char *filename) {
 			file >> result[K][L];
 			file.ignore(); //csv o ssv funciona
 		}
+	}
+
+	if(out){
+		fprintf(out, "%d\n", n);
+		for(int K=0; K<n; ++K)
+			fprintf(out, "%f %f\n", input[K][0], input[K][1]);
+		fflush(out);
 	}
 }
 
@@ -71,15 +78,20 @@ punto SOM::calcular (vector<float> patron) {
 }
 
 void SOM::entrenar (FILE *out) {
+	cerr << "topologico\n";
     entrenar_topo(out);
+	cerr << "transicion\n";
     entrenar_trans(out);
+	cerr << "ajuste_fino\n";
     entrenar_fino(out);
 }
 
 void SOM::entrenar_topo (FILE *out) {
     punto ganador;
     float eta = 0.9;
-    int n_epocas = 732, lambda = max(m, n)/5;
+    int n_epocas = 732, lambda = max(m, n)/2;
+
+	n_epocas = 100;
 
     for (int K = 0; K < n_epocas; K++) {
         for (int i = 0; i < input.size(); i++) {
@@ -103,8 +115,8 @@ void SOM::entrenar_trans (FILE *out) {
             entrenar_area(ganador, lambda, eta, input[i]);
         }
         // eta y lambda se reducen linealmente
-        eta = eta_i - epoca * eta_dif / n_epocas;
-        lambda = lambda_i - epoca * lambda_dif / n_epocas;
+        eta = eta_i + epoca * eta_dif / n_epocas;
+        lambda = lambda_i + epoca * lambda_dif / n_epocas;
 
 		graph(out);
     }
@@ -134,13 +146,7 @@ void SOM::entrenar_area (punto & ganador, int lambda, float eta, vector<float> &
         for (int j = -lambda; j <= lambda; j++) {
             b = ganador.second + j;
             if (b < 0 || b >= n) continue;
-			//if ( abs(i)+abs(j) > lambda) continue;
-			//double alfa;
-			//if(lambda!=0)
-			//	alfa = (lambda - (abs(i)+abs(j)))/float(lambda) * eta;
-			//else
-			double alfa = eta;
-            mapa[a][b].entrenar(patron, alfa);
+            mapa[a][b].entrenar(patron, eta);
         }
     }
 }

@@ -39,10 +39,11 @@ int main (int argc, char **argv) {
 	//cin >> entradas >> ncg >> ncs;
 	cin>>entradas>>row>>column;
 
-	srand(time(NULL));
+	//srand(time(NULL));
+	srand(42);
 
 	SOM red(row, column, entradas, 0);
-	red.read(file);
+	red.read(file, out);
 	red.inicializar();
 	red.entrenar(out);
 

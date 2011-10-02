@@ -12,7 +12,7 @@ using namespace std;
 class SOM {
 public:
     SOM (int m, int n, int entradas, int salidas=0);
-    void read (const char *filename);
+    void read (const char *filename, FILE *out=NULL);
     void inicializar ();
     punto calcular (vector<float> patron);
     void entrenar (FILE *out=NULL);
