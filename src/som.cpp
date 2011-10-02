@@ -1,5 +1,6 @@
 #include <vector>
 #include <fstream>
+#include <iostream>
 #include "som.h"
 
 #include <algorithm>
@@ -69,26 +70,27 @@ punto SOM::calcular (vector<float> patron) {
     return punto(i_min, j_min);
 }
 
-void SOM::entrenar () {
-    entrenar_topo();
-    entrenar_trans();
-    entrenar_fino();
+void SOM::entrenar (FILE *out) {
+    entrenar_topo(out);
+    entrenar_trans(out);
+    entrenar_fino(out);
 }
 
-void SOM::entrenar_topo () {
+void SOM::entrenar_topo (FILE *out) {
     punto ganador;
     float eta = 0.9;
-    int n_epocas = 732, lambda = max(m, n)/2;
+    int n_epocas = 732, lambda = max(m, n)/5;
 
-    for (int epoca = 0; epoca < n_epocas; epoca++) {
+    for (int K = 0; K < n_epocas; K++) {
         for (int i = 0; i < input.size(); i++) {
-            ganador = this->calcular(input[i]);
+            ganador = calcular(input[i]);
             entrenar_area(ganador, lambda, eta, input[i]);
         }
+		graph(out);
     }
 }
 
-void SOM::entrenar_trans () {
+void SOM::entrenar_trans (FILE *out) {
     punto ganador;
     float eta = 0.9, lambda = max(m, n)/2.0;
     float eta_i = 0.9, eta_f = 0.1, eta_dif = eta_f - eta_i;
@@ -103,10 +105,12 @@ void SOM::entrenar_trans () {
         // eta y lambda se reducen linealmente
         eta = eta_i - epoca * eta_dif / n_epocas;
         lambda = lambda_i - epoca * lambda_dif / n_epocas;
+
+		graph(out);
     }
 }
 
-void SOM::entrenar_fino () {
+void SOM::entrenar_fino (FILE *out) {
     punto ganador;
     float eta = 0.05;
     int n_epocas = 3000, lambda = 0;
@@ -116,6 +120,8 @@ void SOM::entrenar_fino () {
             ganador = this->calcular(input[i]);
             entrenar_area(ganador, lambda, eta, input[i]);
         }
+
+		graph(out);
     }
 }
 
@@ -128,8 +134,26 @@ void SOM::entrenar_area (punto & ganador, int lambda, float eta, vector<float> &
         for (int j = -lambda; j <= lambda; j++) {
             b = ganador.second + j;
             if (b < 0 || b >= n) continue;
-            mapa[a][b].entrenar(patron, eta);
+			//if ( abs(i)+abs(j) > lambda) continue;
+			//double alfa;
+			//if(lambda!=0)
+			//	alfa = (lambda - (abs(i)+abs(j)))/float(lambda) * eta;
+			//else
+			double alfa = eta;
+            mapa[a][b].entrenar(patron, alfa);
         }
     }
+}
+
+void SOM::graph(FILE *out){
+	if(not out) return;
+
+	fprintf(out, "%lu %lu\n", mapa.size(), mapa[0].size());
+	for(size_t K=0; K<mapa.size(); ++K){
+		for(size_t L=0; L<mapa[K].size(); ++L)
+			mapa[K][L].graph(out);
+		fprintf(out, "\n");
+	}
+	fflush(out);
 }
 

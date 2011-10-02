@@ -15,13 +15,15 @@ public:
     void read (const char *filename);
     void inicializar ();
     punto calcular (vector<float> patron);
-    void entrenar ();
-    void entrenar_topo ();
-    void entrenar_trans ();
-    void entrenar_fino ();
-    void entrenar_area (punto & ganador, int lambda, float eta, vector<float> & patron);
+    void entrenar (FILE *out=NULL);
 
 private:
+    void entrenar_topo (FILE *out=NULL);
+    void entrenar_trans (FILE *out=NULL);
+    void entrenar_fino (FILE *out=NULL);
+    void entrenar_area (punto & ganador, int lambda, float eta, vector<float> & patron);
+	void graph(FILE *out);
+
     vector<vector<neurona_som> > mapa;
     int m, n; // dimensiones
     int entradas, salidas;
