@@ -21,7 +21,7 @@ SOM::SOM (int m, int n, int entradas,int salidas, float eta) {
 void SOM::read (const char *filename, FILE *out) {
 	int ent;
 
-    fstream file (filename, fstream::in);    
+    ifstream file (filename);
     file >> ent;
     input.resize(ent, vector<float>(entradas));
     result.resize(ent, vector<float>(salidas));
@@ -31,6 +31,7 @@ void SOM::read (const char *filename, FILE *out) {
 			file >> input[K][L];
 			file.ignore(); //csv o ssv funciona
 		}
+		
 		
 		for(int L=0; L<salidas; ++L){
 			file >> result[K][L];
@@ -79,6 +80,8 @@ punto SOM::calcular (vector<float> patron) {
         }
     }
 
+	//cerr << patron[0] << ' ' << patron[1] << " -> " << mapa[i_min][j_min].weights[0] << ' ' << mapa[i_min][j_min].weights[1] << endl;
+
     return punto(i_min, j_min);
 }
 
@@ -102,7 +105,7 @@ void SOM::entrenar_topo (FILE *out) {
             ganador = calcular(input[i]);
             entrenar_area(ganador, lambda, eta, input[i]);
         }
-		random_shuffle(input.begin(), input.end());
+		//random_shuffle(input.begin(), input.end());
 		graph(out);
     }
 }
@@ -130,7 +133,7 @@ void SOM::entrenar_trans (FILE *out) {
 		
 		eta /= exp(alfa);
 
-		random_shuffle(input.begin(), input.end());
+		//random_shuffle(input.begin(), input.end());
 		graph(out);
     }
 }
@@ -147,7 +150,7 @@ void SOM::entrenar_fino (FILE *out) {
             ganador = this->calcular(input[i]);
             entrenar_area(ganador, lambda, eta, input[i]);
         }
-		random_shuffle(input.begin(), input.end());
+		//random_shuffle(input.begin(), input.end());
 		graph(out);
     }
 }
@@ -155,24 +158,17 @@ void SOM::entrenar_fino (FILE *out) {
 void SOM::entrenar_area (punto & ganador, int lambda, float eta, vector<float> & patron) {
     int a = ganador.first, b = ganador.second;
 
-	//if(a<0 or b<0) cerr << a << ' ' << b << '\t';
-
     for (int i = (a-lambda>0)?-lambda:-a; i <= lambda; i++) {
         a = ganador.first + i;
-        //if (a < 0 || a >= m) continue;
 		if( a>=m ) break;
 		b = ganador.second;
         for (int j = (b-lambda>0)?-lambda:-b; j <= lambda; j++) {
             b = ganador.second + j;
-            //if (b < 0 || b >= n) continue;
 			if( b>=n ) break;
-			//if( abs(i)+abs(j) > lambda ) continue;
 			double alfa=1;
 			if(lambda!=0)
-				//alfa = (lambda - (abs(i)+abs(j)-1) ) / float(lambda);
 				alfa = (lambda - 0.9*max(abs(i),abs(j)) ) / float(lambda);
 
-			//alfa = 1;
             mapa[a][b].entrenar(patron, alfa*eta);
         }
     }
@@ -189,15 +185,11 @@ void SOM::graph(FILE *out){
 	}
 	fflush(out);
 }
+
 vector<float> SOM::salida(vector<float> &e){
 	vector<float> r(n*m, 0);
 	punto ganador = calcular(e);
-	r[ ganador.first*n + ganador.second ] = 1;
-	//for(int j=0;j<m;j++){
-	//	for(int k=0;k<n;k++){
-			//r.push_back( exp(-mapa[j][k].calcular_distancia(e))) ;
-	//	}
-	//}
+	r.at( ganador.first*n + ganador.second ) = 1;
 	return  r;
 }
 
@@ -210,21 +202,48 @@ vector<float> SOM::salida_perceptron(vector<float> &e){
 	return salida;
 }
 
-
 int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
 	
     vector<float> salidasom, salida_obtenida;
     int epoca, aciertos;
-	int cant_epocas = 100;
+	int cant_epocas = 300;
 
-	ofstream graficar("grafico");
+	ofstream graficar("grafico"), salsa("soma"), out_file("somalia");
 
     for (epoca = 1; epoca <= cant_epocas; epoca++) {
         aciertos = 0;
-		graficar << input.size() << endl;
+	//	graficar << input.size() << endl;
+
+		for(size_t K=0; K<input.size(); ++K){
+			for(size_t L=0; L<2; ++L){
+				out_file << input[K][L] << ' ';
+			}
+			out_file << result[K][0] << endl;
+		}
+		out_file.close();
 
         for (int i = 0; i < input.size(); i++) { // por cada patron de entrenamiento
+
             salidasom = salida(input[i]);
+					punto ganador = calcular(input[i]);
+					vector<float> vg = mapa[ganador.first][ganador.second].weights;
+
+			if( signo(vg[0]) == signo(vg[1]) ){
+				if( signo(result[i][0]) == 1 ){
+					cerr << "No vale ";
+			cerr << vg[0] << ' ' << vg[1] << " -> " << input[i][0] << ' ' << input[i][1] << ' ' << signo(result[i][0]) << endl;
+			throw "malo";
+				}
+			
+			}else{
+				if( signo(result[i][0]) == -1 ){
+					cerr << "No vale ";
+			cerr << vg[0] << ' ' << vg[1] << " -> " << input[i][0] << ' ' << input[i][1] << ' ' << signo(result[i][0]) <<  endl;
+			throw "malo";
+				}
+			}
+
+
             salida_obtenida = salida_perceptron(salidasom);
             //if (comparar_vectores(salida_obtenida, result[i])) { // si acierta
 			if( signo(salida_obtenida[0]) == signo(result[i][0]) ){
@@ -235,7 +254,12 @@ int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
                     capa_salida[j].entrenar(salidasom, result[i][j] - salida_obtenida[j]);
                 }
             //}
-			graficar <<input[i][0] <<' '<< input[i][1]<<' '<<signo(salida_obtenida[0]) << endl;;
+			//graficar <<input[i][0] <<' '<< input[i][1]<<' '<<signo(salida_obtenida[0]) << endl;;
+
+			for(size_t K=0; K<salidasom.size(); ++K)
+				salsa << salidasom[K] <<  ' ';
+			
+			salsa << result[i][0] << endl;
         }
 
 		graph(out);
