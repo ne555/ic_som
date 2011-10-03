@@ -44,8 +44,7 @@ int main (int argc, char **argv) {
 	//cin >> entradas >> ncg >> ncs;
 	cin>>entradas>>salidas>>row>>column;
 
-	//srand(time(NULL));
-	srand(42);
+	srand(time(NULL));
 
 	SOM red(row, column, entradas, salidas, eta);
 	red.read(train_file, out);
