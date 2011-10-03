@@ -61,6 +61,7 @@ float multiplicar_vectores (vector<float> & a, vector<float> & b) {
     vector<float> c(a.size());
     if (a.size() != b.size()) {
         cerr << "multiplicar_vectores: distinto size" << endl;
+        cerr << a.size() << ' ' << b.size() << endl;
         throw 1;
     }
 
