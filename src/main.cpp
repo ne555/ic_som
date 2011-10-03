@@ -12,8 +12,9 @@ void usage (int status)
 	else{
 		cerr << "Usage: program.bin [OPTIONS]\n";
 		cerr << "Mapa autoorganizativo\n" << 
+		"-e string \t Nombre del archivo de entrenamiento\n" << 
+		"-p string \t Nombre del archivo de prueba\n" << 
 		"-E float \t Velocidad de aprendizaje (eta)\n" << 
-		"-f string \t Nombre del archivo\n" << 
 		"-g \t Grafica la evolucion del sistema\n" << 
 		"-h \t Ayuda del programa\n";
 	}
@@ -24,12 +25,13 @@ void usage (int status)
 int main (int argc, char **argv) {
 	int entradas, row, column, salidas;
 	int option;
-	const char *file;
+    const char *train_file, *test_file;
     float eta = 0.05, success = 0.9;
 	FILE *out=NULL;
-	while( (option=getopt(argc, argv, "f:E:gh")) != -1 ){
+	while( (option=getopt(argc, argv, "e:p:E:gh")) != -1 ){
 		switch(option){
-		case 'f': file=optarg; break;
+		case 'e': train_file=optarg; break;
+		case 'p': test_file=optarg; break;
 		case 'g': if(not out) out=popen("./bin/grapher", "w");break;
 		case 'E': eta=strtof(optarg, NULL); break;
 		case 'h': usage(EXIT_SUCCESS); break;
@@ -46,9 +48,12 @@ int main (int argc, char **argv) {
 	srand(42);
 
 	SOM red(row, column, entradas, salidas, eta);
-	red.read(file, out);
+	red.read(train_file, out);
 	red.inicializar();
 	red.entrenar(out);
+
+	red.read(test_file, NULL);
+	red.test();
 	if(out) pclose(out);
 	return 0;
 }

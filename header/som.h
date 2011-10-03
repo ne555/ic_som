@@ -18,6 +18,7 @@ public:
     void entrenar (FILE *out=NULL);
 	vector<float> salida(vector<float> &e);
 	vector<float> test(vector<float> &e);
+	float test();
 	int entrenar_capa_salida(float acierto_minimo, FILE *out=NULL);
 	vector<float> salida_perceptron(vector<float> &e);
 private:

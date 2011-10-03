@@ -208,19 +208,9 @@ int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
     int epoca, aciertos;
 	int cant_epocas = 300;
 
-	ofstream graficar("grafico"), salsa("soma"), out_file("somalia");
 
     for (epoca = 1; epoca <= cant_epocas; epoca++) {
         aciertos = 0;
-	//	graficar << input.size() << endl;
-
-		for(size_t K=0; K<input.size(); ++K){
-			for(size_t L=0; L<2; ++L){
-				out_file << input[K][L] << ' ';
-			}
-			out_file << result[K][0] << endl;
-		}
-		out_file.close();
 
         for (int i = 0; i < input.size(); i++) { // por cada patron de entrenamiento
 
@@ -228,25 +218,10 @@ int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
 					punto ganador = calcular(input[i]);
 					vector<float> vg = mapa[ganador.first][ganador.second].weights;
 
-			if( signo(vg[0]) == signo(vg[1]) ){
-				if( signo(result[i][0]) == 1 ){
-					cerr << "No vale ";
-			cerr << vg[0] << ' ' << vg[1] << " -> " << input[i][0] << ' ' << input[i][1] << ' ' << signo(result[i][0]) << endl;
-			throw "malo";
-				}
-			
-			}else{
-				if( signo(result[i][0]) == -1 ){
-					cerr << "No vale ";
-			cerr << vg[0] << ' ' << vg[1] << " -> " << input[i][0] << ' ' << input[i][1] << ' ' << signo(result[i][0]) <<  endl;
-			throw "malo";
-				}
-			}
-
 
             salida_obtenida = salida_perceptron(salidasom);
-            //if (comparar_vectores(salida_obtenida, result[i])) { // si acierta
-			if( signo(salida_obtenida[0]) == signo(result[i][0]) ){
+            if (comparar_vectores(salida_obtenida, result[i])) { // si acierta
+			//if( signo(salida_obtenida[0]) == signo(result[i][0]) ){
                 aciertos++;
             } 
             //else { // si no son iguales, entreno las neuronas
@@ -254,12 +229,7 @@ int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
                     capa_salida[j].entrenar(salidasom, result[i][j] - salida_obtenida[j]);
                 }
             //}
-			//graficar <<input[i][0] <<' '<< input[i][1]<<' '<<signo(salida_obtenida[0]) << endl;;
 
-			for(size_t K=0; K<salidasom.size(); ++K)
-				salsa << salidasom[K] <<  ' ';
-			
-			salsa << result[i][0] << endl;
         }
 
 		graph(out);
@@ -269,14 +239,25 @@ int SOM::entrenar_capa_salida(float acierto_minimo, FILE *out){
     }
 
 	cout<<"cantidad de epoca: "<< epoca << " cantidad de aciertos: "<< float(aciertos)/input.size()<<endl;;
-	cout << "Los pesos ";
-	capa_salida[0].print();
     if (epoca <= cant_epocas) { // si convergio
     return epoca;
 	}
     else {
         return -1;
     }
+}
+
+float SOM::test(){
+	int aciertos=0;
+	for(size_t K=0; K<input.size(); ++K){
+		vector<float> r = test(input[K]);
+		if (comparar_vectores(r, result[K])) { // si acierta
+		//if( signo(salida_obtenida[0]) == signo(result[i][0]) ){
+			aciertos++;
+		} 
+		
+	}
+	return float(aciertos) / input.size();	
 }
 
 vector<float> SOM::test(vector<float> &e){
