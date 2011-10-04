@@ -1,34 +1,34 @@
 #include <iostream>
-#include "util.h"
+#include <algorithm>
 #include "neurona.h"
-
+#include "util.h"
+#include "math_vector.h"
 using namespace std;
 
-neurona::neurona (int cant_entradas, float eta) {
-    weights.resize(cant_entradas + 1); // entrada aumentada
-    this->eta = eta;
+neurona::neurona(int p, value_type alpha):
+	weight(p+1), alpha(alpha){}
+
+void neurona::init(){
+	const value_type ratio=1;
+	generate_n(
+		&weight[0],
+		weight.size(),
+		randomize<value_type>(-ratio,ratio)
+	);
 }
 
-float neurona::calcular (vector<float> & entrada) {
-    return signo(multiplicar_vectores(weights, entrada));
+neurona::value_type neurona::output(const vector &input) const{ 
+	return math::sign( math::dot(weight,input) );
 }
 
-void neurona::entrenar (vector<float> & entradas, float error) {
-    for (int i = 0; i < weights.size(); i++) {
-        weights[i] += eta * error * entradas[i];
-		//cerr << entradas[i] << ' ';
-    }
-	//cerr << endl;
+void neurona::train(const vector &input, value_type delta){
+	weight += alpha*delta*input;
 }
 
-void neurona::inicializar () {
-    for (int i = 0; i < weights.size(); i++) {
-        weights[i] = randomize(-0.5f, 0.5f);
-    }
+void neurona::print(ostream &out) const{
+	for(size_t K=0; K<weight.size(); ++K)
+		out << weight[K] << ' ';
+	
+	out << endl;
 }
 
-void neurona::print(){
-    for (int i = 0; i < weights.size(); i++)
-        cout << weights[i] << ' ';
-	cout << endl;
-}

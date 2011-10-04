@@ -1,23 +1,23 @@
 #ifndef NEURONA_SOM_H
 #define NEURONA_SOM_H
 
-#include <vector>
 #include <cstdio>
-#include "util.h"
-
-using namespace std;
+#include <valarray>
 
 class neurona_som {
 public:
-    void set_weights (vector<float> & weights);
-    float calcular_distancia (vector<float> & patron);
-    void entrenar(vector<float> & patron, float eta);
+	typedef float value_type;
+	typedef std::valarray<value_type> vector;
+    //void set_weights (vector<float> & weights);
+	void init(); 
+	neurona_som(size_t n);
+
+    value_type distance(const vector &patron) const;
+	void train(const vector &patron, float alfa);
 
 	void graph(FILE *out);
 private:
-public:
-    vector<float> weights;
-
+    vector weight;
 };
 
 #endif

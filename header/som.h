@@ -3,36 +3,33 @@
 
 #include <vector>
 #include <utility>
+#include <cstdio>
 #include "neurona_som.h"
-#include "neurona.h"
-using namespace std;
-typedef pair<int, int> punto;
-
 
 class SOM {
 public:
-    SOM (int m, int n, int entradas,int salidas, float eta );
-    void read (const char *filename, FILE *out=NULL);
-    void inicializar ();
-    punto calcular (vector<float> patron);
-    void entrenar (FILE *out=NULL);
-	vector<float> salida(vector<float> &e);
-	vector<float> test(vector<float> &e);
-	float test();
-	int entrenar_capa_salida(float acierto_minimo, FILE *out=NULL);
-	vector<float> salida_perceptron(vector<float> &e);
-private:
-    void entrenar_topo (FILE *out=NULL);
-    void entrenar_trans (FILE *out=NULL);
-    void entrenar_fino (FILE *out=NULL);
-    void entrenar_area (punto & ganador, int lambda, float eta, vector<float> & patron);
-	void graph(FILE *out);
+	typedef neurona_som::value_type value_type;
+	typedef neurona_som::vector vector;
+	typedef std::vector<vector> matrix;
 
-    vector<vector<neurona_som> > mapa;
-    int m, n; // dimensiones
-    int entradas, salidas;
-    vector<vector<float> > input, result;
-	vector<neurona> capa_salida;
+	typedef std::vector<neurona_som> fila;
+	typedef std::vector<fila> layer;
+
+	typedef std::pair<size_t,size_t> coord;
+
+    SOM (size_t entradas, size_t row, size_t column);
+
+    void train(const matrix &patrones, FILE *out=NULL);
+	void graph(FILE *out);
+private:
+    void topologico(const matrix &patrones, FILE *out=NULL);
+    void transicion(const matrix &patrones, FILE *out=NULL);
+    void ajuste_fino(const matrix &patrones, FILE *out=NULL);
+    void entrenar_area (size_t vecindad, float alfa, const vector &patron);
+	coord mas_cercano(const vector &patron);
+
+	layer mapa;
+    size_t entradas, row, column;
 };
 
 #endif

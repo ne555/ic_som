@@ -1,8 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <cstdlib>
 #include <cstdio>
-#include "som.h"
+#include "simulator.h"
 using namespace std;
 
 void usage (int status)
@@ -43,13 +44,12 @@ int main (int argc, char **argv) {
 
 	cin>>entradas>>salidas>>row>>column;
 
-	SOM red(row, column, entradas, salidas, eta);
-	red.read(train_file, out);
-	red.inicializar();
-	red.entrenar(out);
+	ifstream train(train_file), test(test_file);
 
-	red.read(test_file, NULL);
-	red.test();
+	simulator benchmark(entradas, salidas, row, column, out);
+	benchmark.read(train);
+	benchmark.train();
+
 	if(out) pclose(out);
 	return 0;
 }

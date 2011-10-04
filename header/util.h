@@ -1,27 +1,71 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <vector>
+#include <sstream>
+#include <string>
+#include <cstdlib>
+#include <iterator>
+#include <algorithm>
+#include <cmath>
 
-using namespace std;
+#include <iostream>
+template<class T>
+static void printv(const T &v){
+	for(size_t K=0; K<v.size(); ++K)
+		std::cerr << v[K] << ' ';
+	std::cerr << std::endl;
+}
 
-int randomize (int lower, int upper);
-float randomize (float lower, float upper);
+namespace math{
+	inline int sign(float r){
+		return (r<0)? -1: 1;
+	}
+	
+	template<class T>
+	inline T sigmoid(T v){
+		return 2/(1+exp(-v)) - 1;
+	}
+}
 
-bool comparar_vectores (vector<float> & a, vector<float> & b);
+template<class T>
+T convert(const std::string &s){
+	T value;
+	std::stringstream ss(s);
+	ss >> value;
+	return value;
+}
 
-vector<float> sumar_vectores (vector<float> & a, vector<float> & b);
+template<class Iter>
+void print(Iter beg, Iter end, std::ostream &out){
+	std::copy(
+		beg,
+		end,
+		std::ostream_iterator
+			<typename std::iterator_traits<Iter>::value_type>
+			(out, " ")
+	);
+	//out << std::endl;
+}
 
-vector<float> restar_vectores (vector<float> & a, vector<float> & b);
+template<class T>
+struct randomize{
+	typedef T value_type;
+	randomize(value_type lower, value_type upper):lower(lower), upper(upper){}
+	inline value_type operator()(){
+		value_type result = rand()/value_type(RAND_MAX);
+		return result*(upper-lower) + lower;
+	}
+	value_type lower, upper;
+};
 
-float multiplicar_vectores (vector<float> & a, vector<float> & b);
+template<>
+inline int randomize<int>::operator()(){
+	return rand()%(upper-lower+1) + lower;
+}
 
-vector<float> dividir_vector (vector<float> & a, float divisor);
-
-float norma2 (vector<float> & a);
-
-int signo (float a);
-
-void imprimir_vector (vector<float> & a);
+template<class T>
+inline bool between(T inic, T mid, T end){
+	return inic < mid and mid < end;
+}
 
 #endif

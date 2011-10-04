@@ -1,20 +1,34 @@
 #ifndef NEURONA_H
 #define NEURONA_H
 
-#include <vector>
+#include <valarray>
 
-using namespace std;
+/*
+	Perceptron simple
+	y = f( w_i x_i )
+	w'_i = w_i + gamma*error*x_i
 
-class neurona {
+	f = sigmoid
+	Salida es un real
+*/
+
+class neurona{
 public:
-    neurona (int cant_entradas, float eta);
-    float calcular (vector<float> & entrada);
-    void entrenar (vector<float> & entradas, float error);
-    void inicializar ();
-	void print();
+	typedef float value_type;
+	typedef std::valarray<value_type> vector;
+
+	neurona(int p, value_type alpha); 
+	//input es la entrada aumentada (la correspondiente al umbral es siempre 1)
+	value_type output(const vector &input) const; 
+	void train(const vector &input, value_type delta); 
+	void print(std::ostream &out) const;
+
+	void init(); //error prone
+
 private:
-    float eta;
-    vector<float> weights;    
+	vector weight;
+	value_type alpha; 
 };
 
 #endif
+

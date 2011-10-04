@@ -1,12 +1,12 @@
 CXX = g++
-CPPFLAGS = -Wall -pedantic-errors -ggdb -pg
+CPPFLAGS = -Wall -pedantic-errors -ggdb -pg -O2
 #CPPFLAGS = -Wall -pedantic-errors -O2 
 LIBRARIES_grapher = $(addprefix -l,GL GLU glut)
-LIBRARIES_som = -pg 
+LIBRARIES_som = -pg -O2
 
-object_som = $(addprefix obj/,main.o neurona_som.o som.o util.o neurona.o)
+object_som = $(addprefix obj/,main.o neurona_som.o som.o neurona.o simulator.o)
 object_grapher = $(addprefix obj/,grapher.o)
-object_input = $(addprefix obj/,input.o util.o)
+object_input = $(addprefix obj/,input.o)
 
 objects = $(object_som) $(object_grapher) $(object_input)
 
@@ -26,11 +26,11 @@ bin/input: $(object_input)
 	$(CXX) $(object_input) -o $@
 
 obj/input.o: $(addprefix header/,util.h)
-obj/main.o: $(addprefix header/,som.h neurona_som.h)
-obj/neurona.o: $(addprefix header/,util.h neurona.h)
-obj/neurona_som.o: $(addprefix header/,util.h neurona_som.h)
-obj/som.o: $(addprefix header/,som.h neurona_som.h util.h)
-obj/util.o: $(addprefix header/,util.h)
+obj/main.o: $(addprefix header/,simulator.h)
+obj/neurona.o: $(addprefix header/,neurona.h util.h math_vector.h)
+obj/neurona_som.o: $(addprefix header/,neurona_som.h util.h)
+obj/simulator.o: $(addprefix header/,simulator.h som.h neurona_som.h util.h math_vector.h)
+obj/som.o: $(addprefix header/,som.h neurona_som.h)
 
 obj/%.o : src/%.cpp
 	$(CXX) $< -c $(CPPFLAGS) -Iheader -o $@
@@ -54,3 +54,4 @@ bin:
 clean:
 	-rm $(objects) $(binaries)
 	-rmdir bin obj
+

@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "util.h"
 using namespace std;
+using namespace math;
 
 void usage (int status)
 {
@@ -41,11 +42,6 @@ void listar(const T &m);
 
 map<string, filter> mapa;
 
-template<class T>
-bool between(T inic, T med, T end){
-	return inic < med and med < end;
-}
-
 int main(int argc, char **argv){
 	init();
 	int option;
@@ -69,7 +65,7 @@ int main(int argc, char **argv){
 		vectorf percepcion(p), desvio(p);
 
 		for(size_t L=0; L<p; ++L)
-			percepcion[L] = randomize(-1.f,1.f);
+			percepcion[L] = randomize<float>(-1.f,1.f)();
 
 		if(funcion(percepcion)){
 			for(size_t J=0; J<percepcion.size(); ++J)
