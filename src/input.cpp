@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include "util.h"
+#include "math_vector.h"
 using namespace std;
 using namespace math;
 
@@ -31,11 +32,16 @@ void init();
 
 bool rectangle(const vectorf &v); 
 bool circle(const vectorf &v); 
+bool ring(const vectorf &v); 
 bool not_circle(const vectorf &v){
 	return not circle(v);
 } 
+bool not_ring(const vectorf &v){
+	return not ring(1.5f*v);
+}
 bool t_shape(const vectorf &v); 
 bool cuadraditos(const vectorf &v); 
+bool circle_fade(const vectorf &v);
 
 template<class T>
 void listar(const T &m);
@@ -69,7 +75,7 @@ int main(int argc, char **argv){
 
 		if(funcion(percepcion)){
 			for(size_t J=0; J<percepcion.size(); ++J)
-				cout << percepcion[J] << ' ';
+				cout << 2*percepcion[J] << ' ';
 			cout << endl;
 			K++;
 		}
@@ -80,9 +86,12 @@ int main(int argc, char **argv){
 
 void init(){
 	mapa["circle"] = &circle;
+	mapa["circle_fade"] = &circle_fade;
 	mapa["not_circle"] = &not_circle;
+	mapa["ring"] = &ring;
+	mapa["not_ring"] = &not_ring;
 	mapa["rectangle"] = &rectangle;
-	mapa["T"] = &t_shape;
+	mapa["t_shape"] = &t_shape;
 	mapa["cuadraditos"] = &cuadraditos;
 }
 
@@ -99,6 +108,9 @@ bool rectangle(const vectorf &v){
 bool circle(const vectorf &v){
 	return (v*v).sum() <= 1;
 } 
+bool ring(const vectorf &v){
+	return between( 0.25f, (v*v).sum(), 1.f);
+}
 
 bool t_shape(const vectorf &v){
 	return
@@ -118,3 +130,6 @@ bool cuadraditos(const vectorf &v){
 		//abs(v).max() <= radio/2;
 }
 
+bool circle_fade(const vectorf &v){
+	return randomize<float>(0,1)() > norm2(v);
+}

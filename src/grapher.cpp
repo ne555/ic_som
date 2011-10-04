@@ -69,7 +69,7 @@ void init(){
 	glClearColor( white[0], white[1], white[2], 1);
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 
-	const float factor=0.5;
+	const float factor=0.25;
 	glScaled(factor,factor,factor);
 	
 	glLineWidth(2);
@@ -79,7 +79,7 @@ void init(){
 
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT);
-	glAccum(GL_RETURN, 1);
+	//glAccum(GL_RETURN, 1);
 
 	draw_puntos();
 	draw_conections();
