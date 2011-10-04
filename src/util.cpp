@@ -16,12 +16,6 @@ float randomize (float lower, float upper) {
 
 bool comparar_vectores (vector<float> & a, vector<float> & b) {
     // Devuelve true si son iguales
-
-    if (a.size() != b.size()) {
-        cerr << "comparar_vectores: distinto size" << endl;
-		cerr << a.size() << ' ' << b.size() << '\n';
-        throw 1;
-    }
     for (int i = 0; i < a.size(); i++) {
         if (fabs(a[i] - b[i]) > EPS) {
             return false;
@@ -32,11 +26,6 @@ bool comparar_vectores (vector<float> & a, vector<float> & b) {
 
 vector<float> sumar_vectores (vector<float> & a, vector<float> & b) {
     vector<float> c(a.size());
-    if (a.size() != b.size()) {
-        cerr << "sumar_vectores: distinto size" << endl;
-        throw 1;
-    }
-
     for (int i = 0; i < a.size(); i++) {
         c[i] = a[i] + b[i];
     }
@@ -45,11 +34,6 @@ vector<float> sumar_vectores (vector<float> & a, vector<float> & b) {
 
 vector<float> restar_vectores (vector<float> & a, vector<float> & b) {
     vector<float> c(a.size());
-    if (a.size() != b.size()) {
-        cerr << "restar_vectores: distinto size" << endl;
-        throw 1;
-    }
-
     for (int i = 0; i < a.size(); i++) {
         c[i] = a[i] - b[i];
     }
@@ -59,11 +43,6 @@ vector<float> restar_vectores (vector<float> & a, vector<float> & b) {
 float multiplicar_vectores (vector<float> & a, vector<float> & b) {
     float accum = 0;
     vector<float> c(a.size());
-    if (a.size() != b.size()) {
-        cerr << "multiplicar_vectores: distinto size" << endl;
-        cerr << a.size() << ' ' << b.size() << endl;
-        throw 1;
-    }
 
     for (int i = 0; i < a.size(); i++) {
         accum += a[i] * b[i];
