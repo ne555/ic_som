@@ -92,8 +92,8 @@ void SOM::transicion(const matrix &patrones, FILE *out){
 }
 
 void SOM::ajuste_fino(const matrix &patrones, FILE *out){
-	const float alfa = 0.05;
-	const size_t epocas = 1000, vecindad = 0;
+	const float alfa = 0.01;
+	const size_t epocas = 400, vecindad = 0;
 
 	for (size_t K = 0; K < epocas; K++){
 		for (size_t L = 0; L < patrones.size(); L++){
@@ -112,10 +112,12 @@ void SOM::entrenar_area (size_t vecindad, float alfa, const vector &patron){
 	coord ganador = mas_cercano(patron);
 	const int a = ganador.first, b = ganador.second;
 
-	for(size_t K = max<int>(0,a-vecindad); K<min(row,a+vecindad); ++K)
-		for(size_t L = max<int>(0,b-vecindad); L<min(column,b+vecindad); ++L)
+	for(size_t K = max<int>(0,a-vecindad); K<min(row,a+vecindad+1); ++K){
+		for(size_t L = max<int>(0,b-vecindad); L<min(column,b+vecindad+1); ++L){
 			//afecta de forma uniforme
 			mapa[K][L].train(patron, alfa);
+		}
+	}
 }
 
 void SOM::graph(FILE *out){
