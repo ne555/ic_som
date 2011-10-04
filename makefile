@@ -1,8 +1,8 @@
 CXX = g++
-#CPPFLAGS = -Wall -pedantic-errors -ggdb 
-CPPFLAGS = -Wall -pedantic-errors -O2 
+CPPFLAGS = -Wall -pedantic-errors -ggdb -pg
+#CPPFLAGS = -Wall -pedantic-errors -O2 
 LIBRARIES_grapher = $(addprefix -l,GL GLU glut)
-LIBRARIES_som = 
+LIBRARIES_som = -pg 
 
 object_som = $(addprefix obj/,main.o neurona_som.o som.o util.o neurona.o)
 object_grapher = $(addprefix obj/,grapher.o)

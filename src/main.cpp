@@ -23,6 +23,8 @@ void usage (int status)
 }
 
 int main (int argc, char **argv) {
+	srand(42);
+	
 	int entradas, row, column, salidas;
 	int option;
     const char *train_file, *test_file;
@@ -39,12 +41,7 @@ int main (int argc, char **argv) {
 		}
 	}
 
-	//if(not out) cerr << "Broken pipe\n";
-	// Leer estructura
-	//cin >> entradas >> ncg >> ncs;
 	cin>>entradas>>salidas>>row>>column;
-
-	srand(time(NULL));
 
 	SOM red(row, column, entradas, salidas, eta);
 	red.read(train_file, out);
